@@ -1,28 +1,44 @@
 import { useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import "./budgetSearch.scss";
+import { sendToAI } from '../../ai.mjs';
 
 const BudgetSearch = () => {
-  const budget = useRef();
+  const userInput = useRef();
   const navigate = useNavigate();
 
-  const handleSearch = e => {
+  const handleSearch = async e => {
     e.preventDefault();
-    navigate(`/search?budget=${budget.current.value}`);
-  };
+    try {
+        const returnValue = await sendToAI(userInput.current.value);
+        console.log(returnValue); // Print the return value
+        // fill the "response" div with the return value
+        document.querySelector('.response').innerHTML = returnValue;
+    } catch (error) {
+        console.error('Error occurred:', error); // Handle any errors
+    }
+};
+
+
   return (
     <div className="budgetSearch">
-      <span className="search-title">Great cars for every budget</span>
+      <span className="search-title">AI here to assist you.</span>
       <form onSubmit={handleSearch}>
         <input
-          ref={budget}
-          type="number"
+          ref={userInput}
+          type="text"
           min="0"
-          placeholder="Your Car budget, USD"
+          placeholder="How can i help?"
           step="100"
         />
-        <button type="submit">Surprise Me</button>
+        <button type="submit">Send</button>
       </form>
+      {/* make some space between the divs */}
+      <br></br>
+      <br></br>
+      <div className="response">
+        <span className="response"></span>
+      </div>
     </div>
   );
 };

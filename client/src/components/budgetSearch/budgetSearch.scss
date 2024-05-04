@@ -19,6 +19,20 @@
     }
   }
 
+  .response{
+    font-size: 1.5rem;
+    font-weight: 400;
+    padding-bottom: 30px;
+    color: var(--secondary-color);
+    text-align: center;
+    // make a gap from this div to left and right
+    margin: 0 100px;
+
+    @media screen and (max-width: 768px) {
+      font-size: 1.2rem;
+    }
+  }
+
   form {
     display: flex;
     align-items: center;

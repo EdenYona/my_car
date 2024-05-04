@@ -1,12 +1,15 @@
 import "./car.scss";
 import Footer from "../../components/footer/Footer";
 import Navbar from "../../components/navbar/Navbar";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import { publicRequest } from "../../requestMethods";
 import { useParams } from "react-router-dom";
 import { carDetails } from "../../data";
 import ImagesSlider from "../../components/imagesSlider/ImagesSlider";
 import { TailSpin } from "react-loader-spinner";
+import { CurrentUserContext } from "../../context/currentUserContext/currentUserContext";
+import { useSDK } from "@metamask/sdk-react";
+
 
 const Car = () => {
   const [showEmail, setShowEmail] = useState(false);
@@ -16,6 +19,12 @@ const Car = () => {
   const [images, setImages] = useState([]);
   const [sliderIndex, setSliderIndex] = useState(0);
   const [showSlider, setShowSlider] = useState(false);
+
+  const { currentUser } = useContext(CurrentUserContext);
+
+  const { sdk, connected, connecting, provider, chainId } = useSDK();
+
+  console.log(currentUser);
 
   const { id } = useParams();
 
@@ -28,6 +37,32 @@ const Car = () => {
     } catch {
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const send = async () => {
+    console.log("sending..");
+    console.log(currentUser, provider);
+    try {
+      await provider.request({
+        method: "eth_sendTransaction",
+        params: [
+          {
+            // from: `${currentUser?.account?.substring(0, 8)}...`,
+            from: currentUser?.account,
+            to: "0x6B8763cBF3D796E2AC96A39C7ad0D81F3873612E",
+            value: "1",
+            gasLimit: '0x5028',
+            // Customizable by the user during MetaMask confirmation.
+            maxPriorityFeePerGas: '0x3b9aca00',
+            // Customizable by the user during MetaMask confirmation.
+            maxFeePerGas: '0x2540be400',
+          }
+        ]
+      }
+    );
+    } catch (err) {
+      console.warn("failed to send request..", err);
     }
   };
 
@@ -103,12 +138,20 @@ const Car = () => {
                   <small>USD</small>
                   {car.price.toLocaleString()}
                 </span>
-                <div
+                {/* <div
                   style={{ width: "100%" }}
                   onClick={() => setShowEmail(true)}
                 >
                   <a href={`mailto:${car.email}`} className="email">
                     {showEmail ? car.email : "Show Email"}
+                  </a>
+                </div> */}
+                <div
+                  style={{ width: "100%" }}
+                  onClick={send}
+                >
+                  <a href="#" className="email">
+                    Pay
                   </a>
                 </div>
                 <div

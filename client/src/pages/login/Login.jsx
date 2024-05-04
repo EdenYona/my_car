@@ -1,10 +1,11 @@
 import "./login.scss";
 import { AiOutlineClose } from "react-icons/ai";
-import { useContext, useState } from "react";
+import { useContext, useState, useEffect } from "react";
 import { ShowAuthContext } from "../../context/showAuthContext/showAuthContext";
 import { useRef } from "react";
 import { CurrentUserContext } from "../../context/currentUserContext/currentUserContext";
 import { publicRequest } from "../../requestMethods";
+import { useSDK } from "@metamask/sdk-react";
 
 const Login = () => {
   const [err, setErr] = useState(null);
@@ -15,16 +16,39 @@ const Login = () => {
     useContext(ShowAuthContext);
   const { setCurrentUser } = useContext(CurrentUserContext);
 
+  const { sdk, connected, connecting, provider, chainId } = useSDK();
+  const [account, setAccount] = useState();
+
+  const connect = async () => {
+    console.log("connecting..");
+    try {
+      const accounts = await sdk?.connect();
+      console.log(accounts, connected, connecting, provider, chainId);
+      setAccount(accounts?.[0]);
+      return accounts?.[0];
+    } catch (err) {
+      console.warn("failed to connect..", err);
+    }
+  };
+
   const handleLogin = async e => {
     e.preventDefault();
     setErr(null);
     setLoading(true);
     try {
-      const res = await publicRequest.post("auth/login", {
-        email: email.current.value,
-        password: password.current.value,
+      // const res = await publicRequest.post("auth/login", {
+      //   email: email.current.value,
+      //   password: password.current.value,
+      // });
+
+      const acc = await connect();
+      console.log("My account", acc);
+      // setCurrentUser(res.data);
+      setCurrentUser({
+        account: acc,
+        phone: "1234567890",
+        email: "asdasdada@dasdasdad.com"
       });
-      setCurrentUser(res.data);
       setShowLogin(false);
       setLoading(false);
     } catch (err) {
@@ -32,6 +56,13 @@ const Login = () => {
       setLoading(false);
     }
   };
+
+  // useEffect(() => {
+  //   if(connected && account) {
+  //     console.log("sending...");
+  //     send();
+  //   }
+  // }, [account]);
 
   const handleSwitch = () => {
     setShowLogin(false);

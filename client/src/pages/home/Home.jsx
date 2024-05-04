@@ -21,7 +21,7 @@ const Home = () => {
       <BudgetSearch />
 
       <div className="title container">
-        <span>Body Tipe</span>
+        <span>Body Type</span>
       </div>
 
       <BodyTipeList />
